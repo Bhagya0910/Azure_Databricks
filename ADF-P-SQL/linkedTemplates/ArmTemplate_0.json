@@ -7,13 +7,13 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "ADF-P-SQL"
 		},
-		"LS_SQL_SERVER_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'LS_SQL_SERVER'"
-		},
 		"ADLS_COMMON_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adfsahb.dfs.core.windows.net/"
+		},
+		"ADF_P_SQL_KV_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://bhagya0910.vault.azure.net/"
 		},
 		"LS_SQL_SERVER_properties_typeProperties_server": {
 			"type": "string",
@@ -318,23 +318,14 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/LS_SQL_SERVER')]",
+			"name": "[concat(parameters('factoryName'), '/ADF_P_SQL_KV')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"type": "AzureSqlDatabase",
+				"type": "AzureKeyVault",
 				"typeProperties": {
-					"server": "[parameters('LS_SQL_SERVER_properties_typeProperties_server')]",
-					"database": "[parameters('LS_SQL_SERVER_properties_typeProperties_database')]",
-					"encrypt": "mandatory",
-					"trustServerCertificate": false,
-					"authenticationType": "SQL",
-					"userName": "[parameters('LS_SQL_SERVER_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('LS_SQL_SERVER_password')]"
-					}
+					"baseUrl": "[parameters('ADF_P_SQL_KV_properties_typeProperties_baseUrl')]"
 				}
 			},
 			"dependsOn": []
@@ -448,64 +439,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_SERVER')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_SQL_SERVER",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"schema": {
-						"type": "string"
-					},
-					"table_name": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "CustomerID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CustomerName",
-						"type": "varchar"
-					},
-					{
-						"name": "Region",
-						"type": "varchar"
-					},
-					{
-						"name": "Email",
-						"type": "varchar"
-					},
-					{
-						"name": "ModifiedDate",
-						"type": "datetime2",
-						"scale": 7
-					}
-				],
-				"typeProperties": {
-					"schema": {
-						"value": "@dataset().schema",
-						"type": "Expression"
-					},
-					"table": {
-						"value": "@dataset().table_name",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_SERVER')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/DS_Target_Binary')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -534,6 +467,34 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLS_COMMON')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SQL_SERVER')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('LS_SQL_SERVER_properties_typeProperties_server')]",
+					"database": "[parameters('LS_SQL_SERVER_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LS_SQL_SERVER_properties_typeProperties_userName')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ADF_P_SQL_KV",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "adf-sql-password"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADF_P_SQL_KV')]"
 			]
 		},
 		{
@@ -873,6 +834,64 @@
 				"[concat(variables('factoryId'), '/datasets/DS_Binary')]",
 				"[concat(variables('factoryId'), '/datasets/DS_Target_Binary')]",
 				"[concat(variables('factoryId'), '/datasets/DS_Binary_Metadata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_SERVER')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_SERVER",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"table_name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerName",
+						"type": "varchar"
+					},
+					{
+						"name": "Region",
+						"type": "varchar"
+					},
+					{
+						"name": "Email",
+						"type": "varchar"
+					},
+					{
+						"name": "ModifiedDate",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table_name",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_SERVER')]"
 			]
 		},
 		{
@@ -1469,6 +1488,39 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/storage_event_trigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "PL_EVENT_TRIGGER",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"file_name": "[parameters('storage_event_trigger_properties_PL_EVENT_TRIGGER_parameters_file_name')]"
+						}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/source/blobs/source_folder",
+					"blobPathEndsWith": ".txt",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('storage_event_trigger_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/PL_EVENT_TRIGGER')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PL_FOREACH_TUT')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1644,39 +1696,6 @@
 				"[concat(variables('factoryId'), '/datasets/DS_SQL_SERVER')]",
 				"[concat(variables('factoryId'), '/pipelines/PL_EMAIL_MULTIPLE')]",
 				"[concat(variables('factoryId'), '/pipelines/PL_Read_Matermark')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/storage_event_trigger')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "PL_EVENT_TRIGGER",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"file_name": "[parameters('storage_event_trigger_properties_PL_EVENT_TRIGGER_parameters_file_name')]"
-						}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/source/blobs/source_folder",
-					"blobPathEndsWith": ".txt",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('storage_event_trigger_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/PL_EVENT_TRIGGER')]"
 			]
 		}
 	]
