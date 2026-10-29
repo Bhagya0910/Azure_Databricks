@@ -1,0 +1,71 @@
+{
+	"name": "PL_EVENT_TRIGGER",
+	"properties": {
+		"activities": [
+			{
+				"name": "File Ingestion Copy Data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "source_folder",
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.file_name",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"container_name": "source"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Target_Binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder_path": "target_folder_wildcard"
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"file_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-10-29T10:11:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

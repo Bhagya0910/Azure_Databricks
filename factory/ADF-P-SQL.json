@@ -1,0 +1,21 @@
+{
+	"name": "ADF-P-SQL",
+	"properties": {
+		"globalParameters": {
+			"email_recepient": {
+				"type": "string",
+				"value": "hari.ghipl@gmail.com"
+			}
+		},
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4d7dedab-a8ee-4229-82ee-ef2cee21b895",
+		"tenantId": "7a41a21b-6cf9-4fb9-8b8d-9520a4de3975"
+	}
+}
