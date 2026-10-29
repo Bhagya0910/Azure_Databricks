@@ -1,0 +1,10 @@
+{
+	"name": "ADF_P_SQL_KV",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://bhagya0910.vault.azure.net/"
+		}
+	}
+}
