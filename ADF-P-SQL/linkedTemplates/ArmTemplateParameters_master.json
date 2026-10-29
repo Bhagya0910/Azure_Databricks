@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADF-P-SQL"
+		},
+		"LS_SQL_SERVER_password": {
+			"value": ""
+		},
+		"ADLS_COMMON_properties_typeProperties_url": {
+			"value": "https://adfsahb.dfs.core.windows.net/"
+		},
+		"LS_SQL_SERVER_properties_typeProperties_server": {
+			"value": "sql-server-adf-proj.database.windows.net"
+		},
+		"LS_SQL_SERVER_properties_typeProperties_database": {
+			"value": "SQL-DB-ADF"
+		},
+		"LS_SQL_SERVER_properties_typeProperties_userName": {
+			"value": "bhagya0910"
+		},
+		"storage_event_trigger_properties_PL_EVENT_TRIGGER_parameters_file_name": {
+			"value": "@triggerBody().fileName"
+		},
+		"storage_event_trigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/220a8512-bd3e-4a8a-89fd-fe6a39d68d46/resourceGroups/ADF-PROJ/providers/Microsoft.Storage/storageAccounts/adfsahb"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
