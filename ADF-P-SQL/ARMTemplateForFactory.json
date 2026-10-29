@@ -1217,6 +1217,7 @@
 				"activities": [
 					{
 						"name": "Read_Customer_Table",
+						"description": "Reading the customer table",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
